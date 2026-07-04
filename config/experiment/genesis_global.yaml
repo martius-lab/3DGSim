@@ -1,0 +1,163 @@
+# @package _global_
+
+defaults:
+  - override /dataset: genesis
+  - override /dataset/view_sampler: no_replacement
+  - override /model/encoder: costvolume
+  - override /model/decoder: mvsplat
+  - override /model/dynamic_model: gaussian_ptv3
+  - override /model/state_adapter: default_state_adapter
+  - override /loss: [mse, lpips]
+
+
+# # lpips loss
+loss:
+  lpips:
+    apply_after_step: 0
+    weight: 0.05
+
+wandb:
+  name: soft_genesis
+  tags: [soft_genesis, "${im_shape}x${im_shape}"]
+
+data_loader:
+  train:
+    batch_size: 1
+
+trainer:
+  max_steps: 380
+  val_check_interval: 240
+  gradient_clip_val: 0.5
+  accumulate_grad_batches: 1
+
+optimizer:
+  lr: 2.e-4  # or 1e-4?
+  cosine_annealing_warmup: false
+  cosine_lr: true
+
+# can change
+checkpointing:
+  save_top_k: 3
+  every_n_train_steps: 3000 # 2000
+  # overfit
+  resume: false
+  load: null
+  # load: '"/fast/mzhobro/results/encoder/2024-11-15/19-08-33/jobs/0/hydra/checkpoints/epoch\=93-step\=70000-psnr_val_avg\=34.519-lpips_val_avg\=0.034-ssim_val_avg\=0.975.ckpt"'
+
+# -------------- CUSTOMIZATION
+model:
+  encoder:
+    num_depth_candidates: 64
+    costvolume_unet_feat_dim: 128
+    costvolume_unet_channel_mult: [1,1,1]
+    costvolume_unet_attn_res: [4]
+    gaussians_per_pixel: 1
+    depth_unet_feat_dim: 32
+    depth_unet_attn_res: [16]
+    depth_unet_channel_mult: [1,1,1,1,1]
+
+  # Dynamic Model
+  dynamic_model.model:
+      with_time_emb: True
+      merge_window_size: "[2,2,2,8]"
+      stride: "[4,2,2,2]" # default is 2
+      grid_size: 0.004
+      # grid_mode: true
+      # attn_drop: 0.16 # ???
+
+  state_adapter:
+    fps_to_num_points: -1  # -1: use all points
+    # 1. Encoded Features
+    state_3dgs_params: [means, opacities]  #  rotations, scales, harmonics]
+    dynamic_latent_feature_dim: 64
+    static_latent_feature_dim: 64
+
+    learn_static_mask: false
+    learn_background_mask: false
+
+    # 2. Dynamic State
+    # one of z_x, cx_x, cx_dx
+    metric: 1.  # the unit is: 0.1*meter
+    dynamic_state_keys: [means, rotations] # , opacities, scales, harmonics]
+    immune_to_static: [harmonics]
+    pred_inductive_bias: true
+    pred_modality:
+        means: cx_x
+        harmonics: cx_x
+        opacities: cx_x
+        rotations: cx_x
+        scales: cx_x
+        dynamic_latent_features: cx_x
+
+    # 3. State config: Gaussians
+    gaussians:
+        sh_degree: 3
+        rotations: 4  # 4 for quaternion, 6 for gramm matrix
+        # scale_min: 0.004
+        # scale_max: 0.34
+        scale_min: 0.0002
+        scale_max: 0.1
+        cam_scale_min: 0.5
+        cam_scale_max: 15.0
+# ------------------ MULTISTEP PREDICTION
+train:
+  depth_mode: null
+  extended_visualization: false
+  print_log_every_n_steps: 1
+  gradient_checkpointing: true
+
+  # Multi-Step Prediction Scheduler
+  dyn_model_schedule:
+    N1: 0  # 8000  # from where to start linear warmup for probability
+    N2: 0  # 20000  # where to end linear warmup for probability
+    n_max_pred: 1  # max multiple of steps to predict
+    n_max_grad_pred: 12  # max multiple of steps to predict with grad_recording
+    probability: 0.0  # probability of uniformly predicting n_pred in [n_max_grad_pred, n_max_step_pred]
+
+
+# DATASET
+im_shape: 128
+dataset:
+  camera_ixs_allowed: null
+  test_chunk_interval: 5
+  background_color: [0.,0.,0.]
+  roots: [datasets/genesis_soft_duck]
+  root_depths: [0]
+  image_shape: ["${im_shape}","${im_shape}"]
+
+  augment: False
+  speedup: 1
+
+  with_mask: true
+  with_seg: false
+  with_depth: false
+
+  workspace_limits: null # [[-8.1, -8.1, -0.3], [8.1, 8.1, 5.1]]
+
+  near: 1.
+  far: 8.
+  baseline_scale_bounds: False
+  make_baseline_1: False
+
+  # near: 1.7
+  # far: 20.
+  # baseline_scale_bounds: false
+  # make_baseline_1: false
+
+  # control for dynamic scenes
+  n_step_state: 2
+  n_step_state_predict: 1 # nr of steps from the step that predict forward (starting from the back)
+  n_step_predict_multiple: 1 # multiples that each of n_step_state_predict predicts forward in time
+
+  view_sampler:
+    num_target_views: 5
+    num_context_views: 4
+    # target_views: [0, 1, 2, 3]
+    # context_views: [1,4,7,10]
+
+test:
+  output_path: null
+  compute_scores: true
+  eval_time_skip_steps: 0
+  save_image: true
+  save_video: true

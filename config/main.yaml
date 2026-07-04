@@ -1,0 +1,103 @@
+defaults:
+  - dataset: genesis
+  - optional dataset/view_sampler_dataset_specific_config: ${dataset/view_sampler}_${dataset}
+  - model/encoder: costvolume
+  - model/dynamic_model: gaussian_ptv3
+  - model/decoder: mvsplat
+  - model/state_adapter: default_state_adapter
+  - loss: [mse]
+
+wandb:
+  project: mvsplat
+  entity: mzhobro
+  name: placeholder
+  mode: disabled
+  log_model: all
+  id: null
+
+mode: train
+
+dataset:
+  overfit_to_scene: null
+  workspace_limits: null # [[-8.1, -8.1, -0.3], [8.1, 8.1, 5.1]]
+
+
+data_loader:
+  dynamic_train_batch_size: false
+  # Avoid having to spin up new processes to print out visualizations.
+  train:
+    num_workers: 10
+    persistent_workers: true
+    batch_size: 1
+    seed: 1234
+  test:
+    num_workers: 4
+    persistent_workers: false
+    batch_size: 1
+    seed: 2345
+  val:
+    num_workers: 1
+    persistent_workers: true
+    batch_size: 1
+    seed: 3456
+
+optimizer:
+  lr: 2.e-4
+  warm_up_steps: 2000
+  cosine_lr: true
+  cosine_annealing_warmup: false
+
+checkpointing:
+  load: null
+  every_n_train_steps: 20000  # 5000
+  save_top_k: 1
+  pretrained_model: null
+  resume: true
+
+train:
+  freeze_encoder: false
+  depth_mode: null
+  extended_visualization: false
+  print_log_every_n_steps: 1
+  gradient_checkpointing: false
+
+  dyn_model_schedule:
+    N0: -1  # 500  # where to end static dynamics regularizer
+    reg_weight_dict:
+      means: 0.0
+      rotations: 0.0
+      scales: 0.0
+      harmonics: 0.0
+      opacities: 0.0
+      features: 0.0
+
+    # Multi-Step Prediction Scheduler
+    N1: -1  # 8000  # from where to start linear warmup for probability
+    N2: -1  # 20000  # where to end linear warmup for probability
+    n_max_pred: 1  # max multiple of steps to predict
+    n_max_grad_pred: 1  # max multiple of steps to predict with grad_recording
+    probability: 0.0  # probability of uniformly predicting n_pred in [n_max_grad_pred, n_max_step_pred]
+
+
+test:
+  output_path: null
+  compute_scores: false
+  eval_time_skip_steps: 0
+  save_image: true
+  save_video: true
+
+seed: 111123
+
+trainer:
+  max_epochs: -1
+  max_steps: 10000
+  val_check_interval: 0.5
+  gradient_clip_val: 0.5
+  num_sanity_val_steps: 0
+  num_nodes: 1
+  detect_anomaly: false
+  use_ema: false
+  log_every_n_steps: 50
+  accumulate_grad_batches: 1
+
+output_dir: null

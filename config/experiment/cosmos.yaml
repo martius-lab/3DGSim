@@ -1,0 +1,64 @@
+# @package _global_
+
+defaults:
+  - override /dataset: movi
+  - override /dataset/view_sampler: no_replacement
+
+
+wandb:
+  project: cosmos
+  entity: mzhobro
+  name: mvsplat
+  # mode: disabled
+  mode: online
+  log_model: all
+  id: null
+
+mode: test
+
+test:
+  compute_scores: true
+  save_video: true
+
+im_shape: 256
+dataset:
+  test_chunk_interval: 1
+  speedup: 1
+  # roots: [datasets/mov_cyl]
+  roots: [/fast/mzhobro/datasets/cylinder_final/movi_c_simple/moviCsimple_256_1100_with_shadow]
+  image_shape: ["${im_shape}","${im_shape}"]
+
+  augment: False
+
+  with_mask: true
+  with_seg: true
+  with_depth: false
+
+  near: 0.2
+  far: 4.
+  background_color: [0.,0.,0.]
+  baseline_scale_bounds: False
+  make_baseline_1: true
+  workspace_limits: null # [[-8.1, -8.1, -0.3], [8.1, 8.1, 5.1]]
+
+  # near: 1.7
+  # far: 20.
+  # baseline_scale_bounds: false
+  # make_baseline_1: false
+
+  # control for dynamic scenes
+  n_step_state: 4
+  n_step_state_predict: 1 # nr of steps from the step that predict forward (starting from the back)
+  n_step_predict_multiple: 1 # multiples that each of n_step_state_predict predicts forward in time
+
+  view_sampler:
+    num_target_views: 5
+    num_context_views: 4
+    test_context_views: [1,4,7,10]
+    test_target_views: all
+
+
+
+# prompt: "A rigid body falling on a circular gray ground."
+# output_dir: /fast/mzhobro/results_cosmos
+# test.output_path: rigids

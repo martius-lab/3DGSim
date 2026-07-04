@@ -1,0 +1,71 @@
+[project]
+name = "splatra"
+version = "0.1.0"
+description = "Gaussian particle world model"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+  "addict",
+  "beartype",
+  "colorama",
+  "colorspacious",
+  "dacite",
+  "e3nn",
+  "einops",
+  "hydra-core",
+  "imageio",
+  "jaxtyping",
+  "lpips",
+  "matplotlib",
+  "moviepy<2",
+  "ninja",
+  "opencv-python==4.6.0.66",
+  "plyfile",
+  "pytorch_lightning",
+  "roma",
+  "scikit-image",
+  "sk-video",
+  "spconv-cu118",
+  "svg.py",
+  "tabulate",
+  "timm",
+  "torch==2.4.1",
+  "torchaudio==2.4.1",
+  "torch-scatter",
+  "torchvision==0.19.1",
+  "tqdm",
+  "wandb",
+  "wheel",
+  "kornia>=0.8.2",
+]
+
+[dependency-groups]
+dev = [
+  "black",
+  "ruff",
+]
+
+[tool.uv]
+find-links = ["https://data.pyg.org/whl/torch-2.4.0+cu118.html"]
+
+[[tool.uv.dependency-metadata]]
+name = "torch-scatter"
+version = "2.1.2"
+requires-dist = ["torch"]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu118" }]
+torchvision = [{ index = "pytorch-cu118" }]
+torchaudio = [{ index = "pytorch-cu118" }]
+torch-scatter = [{ index = "pyg-cu118" }]
+lpips = { git = "https://github.com/jotix16/PerceptualSimilarity.git" }
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
+
+[[tool.uv.index]]
+name = "pyg-cu118"
+url = "https://data.pyg.org/whl/torch-2.4.0+cu118.html"
+explicit = true

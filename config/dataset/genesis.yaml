@@ -1,0 +1,38 @@
+defaults:
+  - view_sampler: no_replacement
+
+name: genesis
+roots: [datasets/genesis_soft_duck]
+root_depths: [0]
+make_baseline_1: false
+augment: true
+with_mask: false
+with_seg: false
+with_depth: false
+
+image_shape: [128, 128]
+background_color: [1.0, 1.0, 1.0]
+cameras_are_circular: false
+
+near: 0.6
+far: 7.
+baseline_scale_bounds: false
+shuffle_val: false
+test_len: -1
+test_chunk_interval: 1
+test_times_per_scene: 1
+
+# control for dynamic scenes
+n_step_state: 1  # nr of steps for the state
+n_step_state_predict: -1 # nr of steps from the step that predict forward (starting from the back)
+n_step_predict_multiple:  0 # multiples that each of n_step_state_predict predicts forward in time
+speedup: 1
+
+workspace_limits: null
+# the radius of cylinder is 7m
+# cameras are placed on a circle of radius 9.3m
+# the height goes 0.4->(+4.7)5.1 in a cosinus which repeats 4 times, i.e. 4*2pi
+test_validity: false
+
+
+camera_ixs_allowed: null  # allow all cameras to be used

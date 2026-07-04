@@ -1,0 +1,30 @@
+
+fps_to_num_points: -1 # -1: use all points
+gaussians:
+    sh_degree: 4
+    rotations: 4  # 4 for quaternion, 6 for gramm matrix
+    scale_min: 0.004
+    scale_max: 0.14
+    cam_scale_min: 0.5
+    cam_scale_max: 15.0
+
+# Features
+state_3dgs_params: [means, rotations, scales, opacities, harmonics]
+dynamic_latent_feature_dim: 0
+static_latent_feature_dim: 0
+
+learn_static_mask: false
+learn_background_mask: false
+
+# Dynamics
+# one of z_x, cx_x, cx_dx
+pred_modality:
+    means: cx_x
+    harmonics: cx_x
+    opacities: cx_x
+    rotations: cx_x
+    scales: cx_x
+
+    dynamic_latent_features: z_x
+
+dynamic_state_keys: [means, rotations, harmonics] #, opacities, scales

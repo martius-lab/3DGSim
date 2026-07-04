@@ -1,0 +1,11 @@
+__pycache__/
+logs
+outputs
+demo_output
+iccv_checkpoints
+iccv_results
+models
+datasets
+.vscode
+assets/model
+assets/

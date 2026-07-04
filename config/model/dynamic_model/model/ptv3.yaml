@@ -1,0 +1,58 @@
+
+in_channels: -1
+out_channels: -1
+grid_size: 0.04
+order: ["z", "z-trans", "hilbert", "hilbert-trans"]
+mlp_ratio: 4
+cls_mode: false
+# temporal merger
+temporal_merger: true
+with_time_emb: true
+merge_window_size: [1, 1, 4, 4]
+# encoder
+grid_mode: false
+stride: [2, 2, 2, 2]
+enc_depths: [2, 2, 2, 6, 2]
+enc_channels: [32, 64, 128, 256, 512]
+enc_num_head: [2, 4, 8, 16, 32]
+enc_patch_size: [1024, 1024, 1024, 1024, 1024]
+# decoder
+dec_depths: [2, 2, 2, 2]
+dec_channels: [64, 64, 128, 256]
+dec_num_head: [4, 4, 8, 16]
+dec_patch_size: [1024, 1024, 1024, 1024]
+
+# # debug config
+# merge_window_size: [4, 4]
+# # encoder
+# stride: [2, 2]
+# enc_depths: [2, 2, 2]
+# enc_channels: [32, 64, 128]
+# enc_num_head: [2, 4, 4]
+# enc_patch_size: [1024, 1024, 1024]
+# # decoder
+# dec_depths: [2, 2]
+# dec_channels: [64, 64]
+# dec_num_head: [4, 4]
+# dec_patch_size: [1024, 1024]
+
+
+# attention
+qkv_bias: true
+qk_scale: null
+attn_drop: 0.0
+proj_drop: 0.0
+drop_path: 0.3
+pre_norm: true
+shuffle_orders: true
+enable_rpe: false
+enable_flash: true
+upcast_attention: false
+upcast_softmax: false
+# norm
+pdnorm_bn: false
+pdnorm_ln: false
+pdnorm_decouple: true
+pdnorm_adaptive: false
+pdnorm_affine: true
+pdnorm_conditions: ["ScanNet", "S3DIS", "Structured3D"]

@@ -1,0 +1,6 @@
+defaults:
+  - model: ptv3
+
+name: ptv3
+
+no_xyz: true
